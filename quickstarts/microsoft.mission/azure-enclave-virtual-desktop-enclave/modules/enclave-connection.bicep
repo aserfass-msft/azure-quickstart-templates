@@ -17,7 +17,7 @@ param tags object = {}
 param virtualEnclaveResourceId string
 
 resource enclaveConnection 'Microsoft.Mission/enclaveConnections@2026-03-01-preview' = {
-  name: take('ec-${split(virtualEnclaveResourceId, '/')[8]}-to-${split(communityEndpointResourceId, '/')[8]}', 36)
+  name: take(take('ec-${split(virtualEnclaveResourceId, '/')[8]}-to-${split(communityEndpointResourceId, '/')[8]}', 36), 36 - (endsWith(take('ec-${split(virtualEnclaveResourceId, '/')[8]}-to-${split(communityEndpointResourceId, '/')[8]}', 36), '-') ? 1 : 0))
   location: location
   tags: tags[?'Microsoft.Mission/enclaveConnections'] ?? {}
   properties: {
