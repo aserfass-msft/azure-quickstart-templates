@@ -72,6 +72,9 @@ param communityEndpointResourceId string
 @description('The suffix to use for naming deployments uniquely. It defaults to the Bicep resolution of the "utcNow()" function.')
 param deploymentNameSuffix string = utcNow()
 
+@description('Enable anonymous usage telemetry for this template.')
+param enableTelemetry bool = true
+
 @allowed([
   'Both'
   'CommunityOnly'
@@ -217,6 +220,15 @@ module enclaveConnection './modules/enclave-connection.bicep' = {
     )[0].addressPrefix
     tags: tags
     virtualEnclaveResourceId: virtualEnclave.outputs.resourceId
+  }
+}
+
+module telemetry './telemetry.bicep' = if (enableTelemetry && !isMsisrTenant) {
+  name: 'telemetry-${deploymentNameSuffix}'
+  scope: resourceGroup(split(communityEndpointResourceId, '/')[2], split(communityEndpointResourceId, '/')[4])
+  params: {
+    enableTelemetry: enableTelemetry
+    name: 've.sc2.avde.fce90515-0f7d-433d-b756-d32b39058d4d.v${deployment().properties.template.contentVersion}'
   }
 }
 
